@@ -1,0 +1,164 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id       String    @id @default(uuid())
+  name     String
+  email    String    @unique
+  sessions Session[]
+  password String
+}
+
+model Session {
+  id        String   @id 
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Candidate {
+  id    String  @id @default(uuid())
+  name  String?
+  ci    String  @unique
+  email String  @unique
+
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  deletedAt   DateTime?
+  assessments Assessment[]
+}
+
+model Dimension {
+  id          Int    @id @default(autoincrement())
+  name        String
+  description String
+
+  questions Question[]
+
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  deletedAt        DateTime?
+  careerDimensions CareerDimension[]
+}
+
+model Career {
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
+  description String?
+
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  deletedAt        DateTime?
+  careerDimensions CareerDimension[]
+  results          Result[]
+}
+
+model Question {
+  id          Int     @id @default(autoincrement())
+  text        String
+  description String?
+
+  dimensionId Int
+  dimension   Dimension @relation(fields: [dimensionId], references: [id])
+
+  type    QuestionType     @default(SINGLE_CHOICE)
+  options QuestionOption[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  answers   Answer[]
+}
+
+model QuestionOption {
+  id    Int    @id @default(autoincrement())
+  text  String
+  value Float
+
+  questionId Int
+  question   Question @relation(fields: [questionId], references: [id])
+
+  createdAt DateTime @default(now())
+  answers   Answer[]
+}
+
+enum QuestionType {
+  SINGLE_CHOICE
+  MULTIPLE_CHOICE
+  SCALE
+  TEXT
+}
+
+model CareerDimension {
+  id Int @id @default(autoincrement())
+
+  careerId    Int
+  dimensionId Int
+  weight      Float @default(1.0)
+
+  career    Career    @relation(fields: [careerId], references: [id])
+  dimension Dimension @relation(fields: [dimensionId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Answer {
+  id Int @id @default(autoincrement())
+
+  questionId       Int
+  questionOptionId Int?
+
+  value Float?
+  text  String?
+
+  questionOption QuestionOption? @relation(fields: [questionOptionId], references: [id])
+  question       Question        @relation(fields: [questionId], references: [id])
+
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  assessment   Assessment? @relation(fields: [assessmentId], references: [id])
+  assessmentId Int?
+}
+
+model Assessment {
+  id Int @id @default(autoincrement())
+
+  candidateId String
+  candidate   Candidate @relation(fields: [candidateId], references: [id])
+
+  answers Answer[]
+  results Result[]
+
+  completedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Result {
+  id Int @id @default(autoincrement())
+
+  assessmentId Int
+  assessment   Assessment @relation(fields: [assessmentId], references: [id])
+
+  careerId Int
+  career   Career @relation(fields: [careerId], references: [id])
+
+  score       Float
+  description String?
+
+  createdAt DateTime @default(now())
+
+  @@unique([assessmentId, careerId])
+}
