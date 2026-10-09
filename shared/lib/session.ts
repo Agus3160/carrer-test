@@ -1,7 +1,11 @@
+"server only";
+
 import { createHash, randomBytes } from "crypto";
 import { env } from "./env";
 import { prisma } from "./prisma";
 import { cookies } from "next/headers";
+import { NextRequest } from "next/server";
+import { redirect } from "next/navigation";
 
 export const genCode = () => randomBytes(32).toString("hex");
 
@@ -15,15 +19,13 @@ export const createSession = async (userId: string) => {
   const hash = hashCode(code);
   const expiresAt = new Date(Date.now() + env.SESSION_TTL_MS);
 
-  const session = await prisma.session.create({
+  await prisma.session.create({
     data: {
       id: hash,
       userId,
       expiresAt,
     },
   });
-
-  console.log(session.id);
 
   const store = await cookies();
 
@@ -35,6 +37,24 @@ export const createSession = async (userId: string) => {
   });
 };
 
+export const logout = async () => {
+  const store = await cookies();
+  const code = store.get(env.SESSION_COOKIE_NAME)?.value;
+
+  if (code)
+    await prisma.session.updateMany({
+      where: { id: hashCode(code), revokedAt: null },
+      data: { revokedAt: new Date() },
+    });
+
+  store.delete(env.SESSION_COOKIE_NAME);
+};
+
+export const isThereSession = async (req: NextRequest) => {
+  const session = req.cookies.get(env.SESSION_COOKIE_NAME)?.value;
+  return session !== null;
+};
+
 export const getSession = async () => {
   const store = await cookies();
   const code = store.get(env.SESSION_COOKIE_NAME)?.value;
@@ -42,7 +62,14 @@ export const getSession = async () => {
 
   const hash = hashCode(code);
   const session = await prisma.session.findUnique({ where: { id: hash } });
-  if (!session || session.expiresAt < new Date()) return null;
+  if (!session || session.expiresAt < new Date() || session.revokedAt !== null)
+    return null;
 
+  return session;
+};
+
+export const getSessionOrRedirect = async () => {
+  const session = await getSession();
+  if (!session) return redirect("/auth/signin");
   return session;
 };

@@ -10,7 +10,7 @@ const EnvSchema = z.object({
 
   SESSION_SECRET: z.string().nonempty().default("secret"),
   SESSION_COOKIE_NAME: z.string().nonempty().default("session"),
-  SESSION_TTL_MS: z
+  SESSION_TTL_MS: z.coerce
     .number()
     .int()
     .default(60 * 60 * 24 * 30),
