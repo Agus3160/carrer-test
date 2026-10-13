@@ -1,25 +1,22 @@
-# AGENTS.md - Guía para agentes IA en CheckCareer
+# AGENTS.md — AI Agent Guide for CheckCareer
 
-Este documento proporciona información estructurada para que agentes de IA trabajen eficientemente con el proyecto **CheckCareer** (test de vocación profesional basado en scoring por dimensiones, con porcentajes de compatibilidad por carrera).
+This document provides the context and conventions AI agents need to work efficiently on **CheckCareer**, a career aptitude test based on dimension scoring, with compatibility percentages for each career.
 
-## 1. Ecosistema del proyecto y herramientas utilizadas
+## 1. Tech Stack
 
-### Tecnologías principales
+- **Framework:** Next.js 16.4.0, App Router, React Server Components (RSC), Server Actions.
+- **Language:** TypeScript 5, strict mode.
+- **UI:** Tailwind CSS v4, tw-animate-css, shadcn/ui (base-nova), Base UI, lucide-react.
+- **Forms:** React Hook Form, Zod 4.
+- **Authentication:** Custom sessions using HTTP-only cookies and bcrypt password hashing. No NextAuth.
+- **Database:** PostgreSQL, Prisma ORM 7.10.0, Prisma Pg Adapter.
+- **Prisma client:** Generated in `generated/prisma/`.
+- **Utilities:** clsx, `cn`, class-variance-authority.
+- **Linting:** ESLint 9, eslint-config-next 16.4.0.
+- **Package manager:** pnpm 11.9.0.
+- **Development:** Turbopack.
 
-- **Framework**: [Next.js 16.4.0](https://nextjs.org/) con App Router (React Server Components + Server Actions)
-- **Lenguaje**: [TypeScript 5](https://www.typescriptlang.org/) con configuración estricta
-- **Estilo/UI**: [Tailwind CSS v4](https://tailwindcss.com/) + [tw-animate-css](https://github.com/jamiebuilds/tw-animate-css)
-- **Componentes**: [shadcn/ui](https://ui.shadcn.com/) (base-nova) + [Base UI](https://base-ui.com/react/) + [lucide-react](https://lucideicons.com/)
-- **Formularios**: [React Hook Form](https://react-hook-form.com/) + [Zod 4](https://zod.dev/) para validación
-- **Autenticación**: Sessions con cookies HTTP-only + bcrypt para hashing de contraseñas (custom, no NextAuth)
-- **Base de datos**: [PostgreSQL](https://www.postgresql.org/) + [Prisma ORM 7.10.0](https://www.prisma.io/) con [Prisma Pg Adapter](https://www.prisma.io/docs/orm/overview/databases/postgresql#adapter)
-- **Cliente Prisma**: Generado en `generated/prisma/` (output personalizado)
-- **Utilidades**: [clsx/cn](https://github.com/lukeed/clsx), class-variance-authority (cva)
-- **Linter/Formatter**: [ESLint 9](https://eslint.org/) + `eslint-config-next` 16.4.0
-- **Package manager**: [pnpm 11.9.0](https://pnpm.io/)
-- **Build/Dev**: Turbopack (`@tailwindcss/turbopack`) en desarrollo
-
-### Scripts disponibles
+### Scripts
 
 ```json
 {
@@ -30,244 +27,279 @@ Este documento proporciona información estructurada para que agentes de IA trab
 }
 ```
 
-### Configuración adicional
+### Configuration
 
-- **Alias de imports**: `@/*` → `./*` (tsconfig.json)
-- **shadcn/ui aliases**: `@/shared/components`, `@/shared/lib/utils`, `@/shared/components/ui`, `@/shared/lib`, `@/shared/hooks`
-- **RSC habilitado** (shadcn con RSC: true)
-- **Entorno**: Cargado con `dotenv/config` (ver `.env`)
+- Import alias: `@/*` → `./*`.
+- shadcn aliases: `@/shared/components`, `@/shared/lib/utils`, `@/shared/components/ui`, `@/shared/lib`, `@/shared/hooks`.
+- RSC enabled.
+- Environment loaded through `dotenv/config` (see `.env`).
 
-### 1.1 Comandos útiles (Prisma/DB)
+### Prisma Commands
 
 ```bash
-# Generar cliente Prisma (tras cambios en schema.prisma)
 pnpm prisma generate
-
-# Ejecutar migraciones
 pnpm prisma migrate dev
 pnpm prisma migrate deploy
-
-# Seed de base de datos
 pnpm tsx prisma/seed.ts
-
-# Explorar DB
 pnpm prisma studio
 ```
 
-## 2. Infraestructura
+Use `prisma generate` after schema changes, migrations for database changes, the seed command to populate data, and Prisma Studio to inspect the database.
 
-### 2.1 Estructura del proyecto
+## 2. Architecture
+
+### Project Structure
 
 ```text
 checkcareer/
-├── app/                    # Next.js App Router
+├── app/
 │   ├── layout.tsx
-│   ├── page.tsx            # Landing/home (placeholder Next.js)
-│   ├── globals.css         # Tailwind v4 + tema light/dark + shadcn
-│   ├── auth/
-│   │   └── signin/
-│   ├── panel/              # Área autenticada (dashboard/admin)
+│   ├── page.tsx                 # Placeholder landing page
+│   ├── globals.css
+│   ├── auth/signin/
+│   ├── panel/
 │   │   ├── layout.tsx
 │   │   ├── page.tsx
-│   │   └── dimension/      # CRUD de dimensiones (implementado)
+│   │   └── dimension/           # Implemented CRUD
 │   └── proxy.ts
-├── features/               # Feature-based (vertical slices)
+├── features/
 │   ├── auth/
-│   │   ├── actions/        # Server Actions (signin, signout)
+│   │   ├── actions/
 │   │   ├── components/
-│   │   └── schemas/        # Zod schemas
-│   ├── dimension/
-│   │   ├── actions/        # CRUD server actions
-│   │   ├── components/     # UI components (table, form, row-actions)
-│   │   ├── queries/        # Data fetch (server)
 │   │   └── schemas/
-│   └── panel/
-│       └── components/     # NavBar, session gate
-├── shared/                 # Código compartido transversal
+│   ├── dimension/
+│   │   ├── actions/
+│   │   ├── components/
+│   │   ├── queries/
+│   │   └── schemas/
+│   └── panel/components/
+├── shared/
 │   ├── components/
-│   │   ├── ui/             # shadcn/ui components
+│   │   ├── ui/
 │   │   └── pagination.tsx
-│   ├── lib/                # Utils (prisma, session, result, pagination, env, format, password)
-│   └── types/              # Tipos compartidos (ActionResult, Paginated)
+│   ├── lib/                     # Prisma, sessions, results, pagination,
+│   │                            # environment, formatting, passwords
+│   └── types/
 ├── prisma/
-│   ├── schema.prisma       # Modelo de datos (core vocacional)
-│   ├── migrations/         # Migraciones
+│   ├── schema.prisma
+│   ├── migrations/
 │   └── seed.ts
-├── generated/
-│   └── prisma/             # Cliente Prisma generado
-├── public/                 # Assets estáticos
-├── .env                    # Variables de entorno (dev)
-└── AGENTS.md               # Este archivo
+├── generated/prisma/
+├── public/
+├── .env
+└── AGENTS.md
 ```
 
-### 2.2 Arquitectura y patrones
+### Architecture and Patterns
 
-- **Feature-first**: Lógica organizada por dominio (`auth`, `dimension`, `panel`). Cada feature tiene `actions/`, `components/`, `queries/`, `schemas/`.
-- **Server-first**: Uso extensivo de Server Components + Server Actions (`"use server"`). Cliente solo cuando necesario (formularios/interactividad).
-- **Soft delete**: Campos `deletedAt` en entidades principales (Dimension, Career, Question, Candidate...). Consultas filtran `deletedAt: null`.
-- **Resultados tipados**: `ActionResult<T>` (`shared/types/action-result.ts`) con helpers `result.ok/success/fail` (`shared/lib/result.ts`).
-- **Paginación reutilizable**: Tipos `Paginated<T>`, helpers `resolvePagination`, `getPaginationMeta`, `getPageItems`, `buildPageHref` (`shared/lib/pagination.ts` + UI `shared/components/pagination.tsx`).
-- **Sesiones custom**: Cookie HTTP-only, token aleatorio (hex 32), hash SHA256 con `SESSION_SECRET`, TTL configurable, revocación por `revokedAt`, índices en `expiresAt`/`userId`. Helpers en `shared/lib/session.ts` (`getSession`, `getSessionOrRedirect`, `createSession`, `logout`, cacheadas con React `cache`).
-- **Validación**: Zod en schemas por feature. Coerción para IDs (`z.coerce.number().int().positive()`).
-- **Prisma**: Cliente singleton con adapter Pg, cacheado global en dev. Output personalizado en `../generated/prisma`.
+- **Feature-first:** Organize code by domain (`auth`, `dimension`, `panel`). Features may contain `actions/`, `components/`, `queries/`, and `schemas/`.
+- **Server-first:** Prefer Server Components and Server Actions. Use client components only when necessary.
+- **Soft delete:** Main entities use `deletedAt`. Filter reads with `deletedAt: null`; delete by setting `deletedAt: new Date()`.
+- **Typed results:** Use `ActionResult<T>` from `shared/types/action-result.ts` and helpers from `shared/lib/result.ts`.
+- **Pagination:** Reuse `Paginated<T>` and helpers from `shared/lib/pagination.ts`: `resolvePagination`, `getPaginationMeta`, `getPageItems`, and `buildPageHref`.
+- **Sessions:** Use `shared/lib/session.ts` for `getSession`, `getSessionOrRedirect`, `createSession`, and `logout`. Sessions use random 32-byte hex tokens, SHA-256 hashing with `SESSION_SECRET`, configurable TTL, revocation, and React `cache`.
+- **Validation:** Use Zod schemas per feature. Coerce IDs with `z.coerce.number().int().positive()`.
+- **Prisma:** Use the singleton client with the PostgreSQL adapter and global caching in development.
 
-### 2.3 Variables de entorno
+### Environment Variables
 
-Requeridas (validadas con Zod en `shared/lib/env.ts`):
+Validated through `shared/lib/env.ts`:
 
 ```env
-DATABASE_URL=postgresql://...        # PostgreSQL
+DATABASE_URL=postgresql://...
 NODE_ENV=development|test|production
-SESSION_SECRET=string               # Requerido (tiene default dev solo en schema, usar fuerte en prod)
-SESSION_COOKIE_NAME=session         # Default: session
-SESSION_TTL_MS=number               # Default: 2592000000 (30 días) - en .env actual 604800 (7 días)
+SESSION_SECRET=strong-random-secret
+SESSION_COOKIE_NAME=session
+SESSION_TTL_MS=2592000000
 ADMIN_EMAIL=admin@gmail.com
 ADMIN_PASSWORD=Admin123*
 ```
 
+`SESSION_TTL_MS` defaults to 30 days (`2592000000` milliseconds). The current configuration reportedly uses `604800` milliseconds, which is only 7 days. Verify the intended value before changing it.
 
-### 2.4 Base de datos y modelo de scoring (core del test vocacional)
+The default development secret must never be used in production. Keep credentials and secrets out of source control.
 
-El modelo está diseñado para un **test vocacional por dimensiones con scoring ponderado por carrera** (obtención de porcentaje/score por carrera para determinar compatibilidad).
+## 3. Database and Career Scoring
 
-#### Entidades principales
+The core requirement is a **dimension-weighted career assessment that calculates a compatibility percentage for every career**.
 
-| Modelo | Campos clave | Propósito |
-|---|---|---|
-| `Candidate` | `id`, `name`, `ci` (unique), `email` (unique), soft delete | Candidato que realiza la evaluación |
-| `Assessment` | `candidateId`, `completedAt`, `answers[]`, `results[]` | Instancia de test realizada (evaluación) |
-| `Dimension` | `id`, `name`, `description`, soft delete, `questions[]`, `careerDimensions[]` | Dimensión psicológica/vocacional (eje de evaluación) |
-| `Career` | `id`, `name` (unique), `description`, soft delete, `careerDimensions[]`, `results[]` | Carrera/profesión. Obtendrá **score/porcentaje** por Assessment |
-| `CareerDimension` | `careerId`, `dimensionId`, `weight` (Float, default 1.0) | **Matriz de ponderación carrera-dimensión**. Define cuánto pesa cada dimensión para esa carrera (clave para scoring ponderado). |
-| `Question` | `text`, `description`, `dimensionId`, `type` (`SINGLE_CHOICE|MULTIPLE_CHOICE|SCALE|TEXT`), `options[]`, `answers[]` | Pregunta asociada a una dimensión |
-| `QuestionOption` | `text`, `value` (Float) | Opción con **valor numérico** (puntuación base de esa respuesta) |
-| `Answer` | `questionId`, `questionOptionId?`, `value?` (Float), `text?`, `assessmentId?` | Respuesta dada en una Assessment. Usa `value` (o deriva de opción) para cálculo |
-| `Result` | `assessmentId`, `careerId`, `score` (Float), `description?`, `@@unique([assessmentId,careerId])` | **Resultado por carrera** (score calculado). Aquí se almacena el porcentaje/compatibilidad por carrera. |
-| `User`/`Session` | Auth admin/panel | Gestión de acceso al panel administrativo |
+### Main Entities
 
-#### Lógica de scoring
+| Model | Purpose |
+|---|---|
+| `Candidate` | Person taking the assessment; includes name, unique `ci`, unique email, and soft delete. |
+| `Assessment` | Assessment instance containing a candidate, answers, results, and completion timestamp. |
+| `Dimension` | Vocational or psychological evaluation dimension; relates to questions and career weights. |
+| `Career` | Career or profession receiving a compatibility score. |
+| `CareerDimension` | Join model linking careers and dimensions, with `weight` defaulting to `1.0`. |
+| `Question` | Question assigned to a dimension; types include `SINGLE_CHOICE`, `MULTIPLE_CHOICE`, `SCALE`, and `TEXT`. |
+| `QuestionOption` | Answer option with a numeric `value` representing its score. |
+| `Answer` | Assessment response, referencing an option or storing a direct numeric/text value. |
+| `Result` | Career score for an assessment; includes `score`, optional `description`, and unique `(assessmentId, careerId)`. |
+| `User` / `Session` | Administrative authentication and session management. |
 
-Basado en el esquema:
+Always inspect `prisma/schema.prisma` before modifying models or implementing scoring. The actual schema is authoritative.
 
-1. Cada `Question` pertenece a una `Dimension` (`dimensionId`)
-2. Cada `Career` tiene pesos por dimensión vía `CareerDimension` (`weight` por `(careerId, dimensionId)`). Esto permite que distintas carreras prioricen distintas dimensiones.
-3. Respuestas: `Answer` apunta a `QuestionOption` (con `value`) o puede tener `value` directo (útil para SCALE/TEXT con normalización). El `value` de opción es la puntuación aportada por esa respuesta.
-4. Una `Assessment` agrupa `Answer[]` de un `Candidate`.
-5. `Result` almacena `score` (Float) por `(assessmentId, careerId)`. El modelo permite **un porcentaje/score por cada carrera** para determinar compatibilidad.
+### Scoring Logic
 
-### 2.5 Rutas y navegación
+1. Each question belongs to a dimension through `dimensionId`.
+2. Each career has a weight for each relevant dimension through `CareerDimension`.
+3. Answers obtain their numeric score from `QuestionOption.value` or `Answer.value`.
+4. Each assessment groups a candidate's answers.
+5. Calculate and persist one normalized score per career in `Result.score`.
 
-Rutas App Router detectadas:
+**Recommended formula:**
 
-| Ruta | Descripción | Estado |
-|---|---|---|
-| `/` | Home/landing (placeholder Next.js) | Básico |
-| `/auth/signin` | Login | Implementado |
-| `/panel` | Dashboard autenticado | Implementado (layout + gate) |
-| `/panel/dimension` | Listado dimensiones (paginado) | Implementado |
-| `/panel/dimension/new` | Crear dimensión | Implementado |
-| `/panel/dimension/[id]` | Detalle dimensión | Implementado |
-| `/panel/dimension/[id]/edit` | Editar dimensión | Implementado |
-| `/panel/carrer` | Carreras (ruta con 'r' simple) | **No implementado** (referenciado en NavBar) |
-| `/panel/candidates` | Candidatos | No implementado |
-| `/panel/questions`, `/panel/assessments`, `/panel/results`, `/test/*`, `/resultados/*` | No existen aún | Pendientes |
+For each career \(C\):
 
+1. Calculate the raw score for each relevant dimension \(D\) using the assessment's answers.
+2. Normalize each dimension score to a common 0–100 scale using its theoretical minimum and maximum.
+3. Apply the career-specific dimension weights.
+4. Divide by the sum of applicable weights.
 
-## 3. Elementos relevantes del proyecto
+\[
+\text{Score}_C =
+\frac{\sum_D w_{C,D}\cdot s_D}
+{\sum_D w_{C,D}}
+\]
 
-### 3.1 Convenciones de código
+Here, \(w_{C,D}\) is the career's weight for dimension \(D\), and \(s_D\) is its normalized score from 0 to 100.
 
-- **Path aliases**: Usar `@/` siempre (p.ej. `@/shared/lib/prisma`)
-- **Server Actions**: Archivos `*.actions.ts` con `"use server"` al inicio. Retornan `ActionResult<T>`.
-- **Queries**: `*.queries.ts` con `"server only"` (cuando usa DB directamente). Datos leídos desde Server Components.
-- **Schemas**: `*.schema.ts` con Zod. Mensajes en español (coherente con UI).
-- **Componentes**: `PascalCase.tsx`. Usar RSC por defecto; agregar `"use client"` solo si necesario (hooks, interactividad).
-- **Soft delete**: Siempre filtrar `deletedAt: null` en reads (findMany/findFirst). Updates para borrar usan `deletedAt: new Date()`.
-- **Revalidación**: Tras mutaciones, `revalidatePath` rutas afectadas (list + detail).
-- **Paginación**: `searchParams.page` (string|string[]), parsear con `parsePage`/`resolvePagination`.
-- **Fechas**: Formatear con `formatDateTime` (Intl es-ES) en `shared/lib/format.ts`.
-- **Tipado estricto**: `strict: true` en TS. Evitar `any`.
+**Important implementation considerations:**
 
-### 3.2 Seguridad
+- Define scoring rules for each question type before implementing calculations.
+- For multiple-choice questions, specify whether selected values are summed, averaged, or otherwise combined.
+- Establish theoretical score ranges for normalization; do not assume every question uses the same scale.
+- Handle unanswered questions consistently. Avoid treating missing answers as zero unless that is the defined scoring rule.
+- Ensure zero or invalid weight totals cannot cause division by zero.
+- Validate weights and scores, and constrain final percentages to the intended range.
+- Use transactions for consistent result persistence.
+- Store the calculated score in `Result.score`, preferably on a 0–100 scale.
 
-- Sesiones: HTTP-only, `secure: true`, `sameSite: "strict"`, TTL, revocación, hash SHA256 con secret. Validación en cada acción sensible (`getSession()` / `getSessionOrRedirect()`).
-- Hash passwords: `bcrypt` (cost 12 en seed/signin). Comparación con `compare`.
-- Autorización: Panel protegido vía layout + `PanelSessionGate` (Suspense) y checks en Server Actions/Queries (`getSessionOrRedirect()`).
-- Zod validation en inputs (previene datos inválidos).
-- No exponer secrets: `.env` local, `env.ts` valida en runtime.
-- Soft delete evita borrado físico accidental.
+## 4. Routes and Implementation Status
 
-### 3.3 Estilo/UI
+| Route | Status |
+|---|---|
+| `/` | Basic placeholder landing page |
+| `/auth/signin` | Implemented login |
+| `/panel` | Implemented dashboard and authentication gate |
+| `/panel/dimension` | Implemented paginated dimension list |
+| `/panel/dimension/new` | Implemented dimension creation |
+| `/panel/dimension/[id]` | Implemented dimension details |
+| `/panel/dimension/[id]/edit` | Implemented dimension editing |
+| `/panel/carrer` | Not implemented; referenced by navigation. Note the existing spelling. |
+| `/panel/candidates` | Pending |
+| `/panel/questions` | Pending |
+| `/panel/assessments` | Pending |
+| `/panel/results` | Pending |
+| `/test/*` | Pending |
+| `/resultados/*` | Pending |
 
-- Tailwind v4 con variables CSS (tema claro/oscuro). Usa clases semánticas (`text-muted-foreground`, etc.)
-- shadcn/ui style `base-nova`, iconLibrary `lucide`.
-- Español en UI (mensajes, labels). Codificación UTF-8.
+Inspect existing routes and navigation before adding or renaming routes.
 
-### 3.4 Modelo de datos para el test vocacional (detalles de cálculo)
+## 5. Coding Conventions
 
-Para implementar correctamente **scoring por dimensiones → porcentaje por carrera**:
+### File Organization
 
-- `QuestionOption.value` (Float): Puntuación numérica de esa opción. Para preguntas tipo `SCALE` puede representar valor directo (0-10). Para `SINGLE_CHOICE`/`MULTIPLE_CHOICE` valores definidos según criterio.
-- `CareerDimension.weight` (Float, default 1.0): Peso relativo de la `Dimension` para esa `Career`. Suma de pesos por carrera puede normalizarse (opcional) o usarse ponderado.
-- `Answer.value` (Float, opcional): Permite override o valores para `TEXT`/casos especiales. Priorizar `questionOption.value` si existe.
-- `Result.score` (Float): Score calculado por carrera en esa Assessment. Debe almacenarse (normalizado, p.ej. 0–100 o 0–1). El requisito pide **"porcentaje por cada carrera"** → recomendable 0–100.
+- Use `@/` imports.
+- Server Actions: `*.actions.ts`, starting with `"use server"`.
+- Database queries: `*.queries.ts`; use `import "server-only"` where appropriate.
+- Validation: `*.schema.ts`, using Zod and Spanish error messages.
+- Components: `PascalCase.tsx`.
+- Default to Server Components. Add `"use client"` only when necessary.
+- Reuse existing shared utilities and feature patterns rather than introducing new abstractions without a need.
 
-**Fórmula sugerida (típica)**:
+### Server Actions
 
-```text
-Para cada Career C:
-1. Por cada Dimension D con peso w_{C,D} (CareerDimension)
-2. Calcular puntaje bruto de D: suma/media de values de Answers de Questions(D) en Assessment A (según tipo: SINGLE/MULTIPLE/SCALE)
-3. Normalizar D a 0–100 (o escala común) según rango teórico (min/max posibles)
-4. Score_C = (∑ w_{C,D} * norm_D) / (∑ w_{C,D}) * 100  (ponderado y normalizado a porcentaje)
-5. Guardar en Result(score=Score_C, assessmentId=A.id, careerId=C.id)
-```
+Follow the established dimension feature pattern:
 
-## 4. Buenas prácticas base para cada petición al agente
+1. Authenticate using `getSession()` or `getSessionOrRedirect()`, as appropriate.
+2. Validate input with Zod.
+3. Check authorization and related record existence.
+4. Execute the requested operation.
+5. Return a typed `ActionResult<T>` using the existing result helpers.
+6. Revalidate all affected paths with `revalidatePath()`.
 
-### 4.1 Antes de codificar (investigación obligatoria)
+Use Spanish messages for user-facing success and error results.
 
-1. **Entender contexto**: Leer AGENTS.md + schema.prisma + rutas relevantes (.next/app-path-routes-manifest.json si hay rutas nuevas).
-2. **Explorar feature existente**: Si modificas `dimension`, mira `features/dimension/*` (patrones: actions con result, queries con server-only, schemas Zod, paginación).
-3. **Revisar convenciones**: Usar mismos patrones (soft delete, revalidatePath, ActionResult, getSessionOrRedirect).
-4. **Verificar librerías**: No asumir lib nueva. Comprobar package.json (Next 16, React 19, Zod 4, Prisma 7).
-5. **Buscar referencias**: Usar grep/glob para entender uso antes de cambiar (evitar romper).
-6. **Pensar en datos**: Para scoring (assessment/result) entender modelo completo antes de implementar.
+### Database Queries
 
-### 4.2 Implementación
+- Filter soft-deleted records with `deletedAt: null`.
+- Use transactions when multiple operations must remain consistent.
+- Preserve pagination conventions and metadata.
+- Avoid exposing database access to client components.
 
-1. **Tipado estricto**: Inferir tipos de Zod/Prisma. Usar `@/generated/prisma/client` types (`Dimension`, etc.).
-2. **Server-first**: Preferir RSC + Server Actions. `"use client"` solo cuando imprescindible.
-3. **Validación doble**: Zod en schema + validación lógica (existencia, permisos) en actions.
-4. **Transacciones**: Usar `prisma.$transaction` para operaciones múltiples/consistentes (p.ej. paginación count+findMany, creación con relaciones, cálculo de resultados).
-5. **Acción atómica**: Cada Server Action hace una tarea clara. Retorna ActionResult con mensaje en español.
-6. **Revalidación correcta**: Especificar paths correctos (`/panel/...`).
-7. **Soft delete coherente**: Filtros en queries, updates en delete.
-8. **Paginación**: Respetar `DEFAULT_PAGE_SIZE=8`, meta completa, UI compartida.
-9. **UX**: Skeletons, estados vacíos, mensajes claros, accesibilidad básica.
+### Pagination
 
-### 4.3 Calidad y verificación
+- Read `searchParams.page`, accounting for `string | string[]`.
+- Use existing parsing and pagination helpers.
+- Preserve `DEFAULT_PAGE_SIZE = 8`.
+- Reuse `shared/components/pagination.tsx`.
 
-1. **Typecheck**: Ejecutar `npx tsc --noEmit` (no hay script, pero obligatorio). Detecta errores TS.
-2. **Lint**: `pnpm lint` (eslint). Corregir warnings/errores.
-3. **Build**: `pnpm build` para validar integración Next (recomendado ante cambios estructurales).
-4. **Probar rutas**: Verificar auth + rutas protegidas, CRUD, paginación.
-5. **No asumir tests**: No hay framework de tests visible. Si se añaden, buscar patrones existentes.
-6. **Ver commits**: **NO commitear** a menos que usuario lo pida explícitamente (instrucción del sistema).
+### Formatting and UI
 
-### 4.4 Estilo de respuesta del agente
+- Format dates using `formatDateTime` from `shared/lib/format.ts`, based on `Intl` and `es-ES`.
+- Use Tailwind v4 semantic classes such as `text-muted-foreground`.
+- Follow the existing shadcn/ui base-nova style and lucide icon conventions.
+- Keep all user-facing UI in Spanish.
+- Support loading states, empty states, clear error messages, and basic accessibility.
 
-- Conciso (< 4 líneas texto salvo detalle). Responder directo.
-- Usar referencias `file_path:line_number` al citar código.
-- Explicar comando no trivial antes de bash.
-- No añadir comentarios innecesarios al código (regla: no añadir comentarios salvo pedido).
-- Minimizar tokens, evitar preámbulo/postámbulo.
+### Type Safety
 
-### 4.5 Patrones a seguir (ejemplo Dimension)
+- Maintain TypeScript strict mode.
+- Avoid `any`.
+- Infer types from Zod and Prisma where practical.
+- Import generated Prisma types from `@/generated/prisma/client`, following existing imports.
 
-- Schema Zod: validación + `DimensionIdSchema = z.coerce.number().int().positive()`
-- Query: `getDimensionsPage` con count+findMany transacción, filtra deletedAt, ordena desc
-- Action: auth check (`getSession`), parse Zod, existencia, update con soft delete, revalidatePath
-- Component: Server Component para tabla (lee datos), Suspense + Skeleton, paginación
+## 6. Security Requirements
 
-Seguir exactamente este patrón para nuevas features (Career, Question, Candidate, Assessment, Result).
+- Validate sessions on every sensitive Server Action and protected query.
+- Use HTTP-only cookies, secure settings in production, `sameSite: "strict"`, expiration, and revocation.
+- Hash passwords with bcrypt; existing authentication and seed flows use cost factor 12.
+- Protect administrative routes and operations with authorization checks.
+- Validate user input with Zod and verify business rules separately.
+- Keep secrets in environment variables and never expose them to client code.
+- Use soft delete consistently.
+- Do not trust the UI or route protection alone as authorization; enforce access checks on the server.
+
+## 7. Required Workflow Before Coding
+
+1. Read `AGENTS.md`, `prisma/schema.prisma`, and the relevant routes and feature files.
+2. Inspect `features/dimension/` when implementing another CRUD feature.
+3. Review existing actions, queries, schemas, components, and shared helpers.
+4. Check `package.json` before assuming dependencies or APIs.
+5. Search for existing usages before changing shared code.
+6. Understand relationships and scoring rules before implementing assessments or results.
+7. Follow existing patterns unless a concrete technical reason requires a change.
+
+## 8. Quality Assurance
+
+After making changes:
+
+1. Run `npx tsc --noEmit` for type checking.
+2. Run `pnpm lint` and fix relevant errors.
+3. Run `pnpm build` for structural or integration changes.
+4. Verify affected routes, authentication, CRUD operations, and pagination.
+5. Check for existing test infrastructure before adding tests; do not assume a test framework is installed.
+6. **Never commit changes unless explicitly requested.**
+
+## 9. Response Guidelines for AI Agents
+
+- Keep responses concise, normally under four lines unless more detail is necessary.
+- Reference code using `file_path:line_number` when applicable.
+- Explain nontrivial shell commands before showing them.
+- Avoid unnecessary comments in code unless requested.
+- Minimize tokens and avoid unnecessary introductions or conclusions.
+
+## 10. Feature Implementation Standard
+
+When implementing `Career`, `Question`, `Candidate`, `Assessment`, or `Result`, follow the established `Dimension` feature pattern:
+
+- **Schema:** Zod validation, including positive integer ID coercion.
+- **Query:** Server-side database access, soft-delete filters, and transactions where appropriate.
+- **Action:** Authentication, validation, existence and authorization checks, typed results, and path revalidation.
+- **Component:** Server Components by default, loading skeletons, empty states, and shared pagination.
+- **Database:** Respect Prisma relations and constraints.
+- **Verification:** Run type checking and linting; build when appropriate.
+
+**Core principle:** Reuse established project conventions, enforce security on the server, preserve strict typing, and implement career scoring using explicit, validated, and consistently normalized dimension scores.
