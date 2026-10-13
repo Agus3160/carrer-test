@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { TextField, TextareaField } from "@/shared/components/form-fields";
 import { Button } from "@/shared/components/ui/button";
 import {
   Card,
@@ -13,14 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
-import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@/shared/components/ui/field";
-import { Input } from "@/shared/components/ui/input";
-import { Textarea } from "@/shared/components/ui/textarea";
+import { FieldGroup } from "@/shared/components/ui/field";
 import { toast } from "@/shared/components/ui/toast";
 import { DimensionBody, DimensionSchema } from "../schemas/dimension.schema";
 import { createDimension, updateDimension } from "../actions/dimension.actions";
@@ -69,40 +63,18 @@ export const DimensionForm = ({ dimensionId, defaultValues }: Props) => {
       <CardContent>
         <form id="dimension-form" onSubmit={form.handleSubmit(onSubmit)}>
           <FieldGroup className="flex flex-col gap-6">
-            <Controller
+            <TextField
+              control={form.control}
               name="name"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>Nombre*</FieldLabel>
-                  <Input
-                    id={field.name}
-                    placeholder="Ej. Razonamiento lógico"
-                    {...field}
-                  />
-                  {fieldState.error && (
-                    <FieldError>{fieldState.error.message}</FieldError>
-                  )}
-                </Field>
-              )}
+              label="Nombre*"
+              placeholder="Ej. Razonamiento lógico"
             />
-            <Controller
-              name="description"
+            <TextareaField
               control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>Descripción*</FieldLabel>
-                  <Textarea
-                    id={field.name}
-                    placeholder="Describe qué mide esta dimensión"
-                    rows={5}
-                    {...field}
-                  />
-                  {fieldState.error && (
-                    <FieldError>{fieldState.error.message}</FieldError>
-                  )}
-                </Field>
-              )}
+              name="description"
+              label="Descripción*"
+              placeholder="Describe qué mide esta dimensión"
+              rows={5}
             />
           </FieldGroup>
         </form>

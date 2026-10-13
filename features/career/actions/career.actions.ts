@@ -6,11 +6,7 @@ import { result } from "@/shared/lib/result";
 import { getSession } from "@/shared/lib/session";
 import { ActionResult } from "@/shared/types/action-result";
 import { revalidatePath } from "next/cache";
-import {
-  CareerBody,
-  CareerIdSchema,
-  CareerSchema,
-} from "../schemas/career.schema";
+import { CareerBody, CareerIdSchema } from "../schemas/career.schema";
 
 const LIST_PATH = "/panel/carrer";
 
@@ -57,14 +53,7 @@ export const createCareer = async (
   const session = await getSession();
   if (!session) return result.fail("No autorizado");
 
-  const parsed = CareerSchema.safeParse(body);
-  if (!parsed.success)
-    return result.fail(
-      "Datos inválidos",
-      parsed.error.issues.map((issue) => issue.message),
-    );
-
-  const data = normalize(parsed.data);
+  const data = normalize(body);
 
   if (await nameExists(data.name))
     return result.fail("Ya existe una carrera con ese nombre");
@@ -102,19 +91,12 @@ export const updateCareer = async (
   const parsedId = CareerIdSchema.safeParse(id);
   if (!parsedId.success) return result.fail("Identificador inválido");
 
-  const parsed = CareerSchema.safeParse(body);
-  if (!parsed.success)
-    return result.fail(
-      "Datos inválidos",
-      parsed.error.issues.map((issue) => issue.message),
-    );
-
   const existing = await prisma.career.findFirst({
     where: { id: parsedId.data, deletedAt: null },
   });
   if (!existing) return result.fail("La carrera no existe");
 
-  const data = normalize(parsed.data);
+  const data = normalize(body);
 
   if (await nameExists(data.name, parsedId.data))
     return result.fail("Ya existe una carrera con ese nombre");

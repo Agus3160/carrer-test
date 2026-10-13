@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { TextField, TextareaField } from "@/shared/components/form-fields";
 import { Button } from "@/shared/components/ui/button";
 import {
   Card,
@@ -13,16 +14,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
-import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@/shared/components/ui/field";
+import { FieldError, FieldGroup } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { Separator } from "@/shared/components/ui/separator";
-import { Textarea } from "@/shared/components/ui/textarea";
 import { toast } from "@/shared/components/ui/toast";
 import { CareerBody, CareerSchema } from "../schemas/career.schema";
 import { createCareer, updateCareer } from "../actions/career.actions";
@@ -87,42 +82,18 @@ export const CareerForm = ({ careerId, dimensions, defaultValues }: Props) => {
       <CardContent>
         <form id="career-form" onSubmit={form.handleSubmit(onSubmit)}>
           <FieldGroup className="flex flex-col gap-6">
-            <Controller
+            <TextField
+              control={form.control}
               name="name"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>Nombre*</FieldLabel>
-                  <Input
-                    id={field.name}
-                    placeholder="Ej. Ingeniería de Software"
-                    {...field}
-                  />
-                  {fieldState.error && (
-                    <FieldError>{fieldState.error.message}</FieldError>
-                  )}
-                </Field>
-              )}
+              label="Nombre*"
+              placeholder="Ej. Ingeniería de Software"
             />
-            <Controller
-              name="description"
+            <TextareaField
               control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>
-                    Descripción (opcional)
-                  </FieldLabel>
-                  <Textarea
-                    id={field.name}
-                    placeholder="Describe la carrera"
-                    rows={4}
-                    {...field}
-                  />
-                  {fieldState.error && (
-                    <FieldError>{fieldState.error.message}</FieldError>
-                  )}
-                </Field>
-              )}
+              name="description"
+              label="Descripción (opcional)"
+              placeholder="Describe la carrera"
+              rows={4}
             />
 
             <div className="flex flex-col gap-4 rounded-xl border p-4">

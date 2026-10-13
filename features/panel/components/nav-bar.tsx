@@ -15,6 +15,7 @@ type Props = {
 
 const navigationItems = [
   { label: "Dimensiones", href: "/panel/dimension" },
+  { label: "Preguntas", href: "/panel/questions" },
   { label: "Carreras", href: "/panel/carrer" },
   { label: "Candidatos", href: "/panel/candidates" },
 ];

@@ -191,8 +191,11 @@ Here, \(w_{C,D}\) is the career's weight for dimension \(D\), and \(s_D\) is its
 | `/panel/carrer/new` | Implemented career creation with per-dimension weights |
 | `/panel/carrer/[id]` | Implemented career details |
 | `/panel/carrer/[id]/edit` | Implemented career editing |
+| `/panel/questions` | Implemented paginated question list |
+| `/panel/questions/new` | Implemented question creation with options |
+| `/panel/questions/[id]` | Implemented question details |
+| `/panel/questions/[id]/edit` | Implemented question editing |
 | `/panel/candidates` | Pending |
-| `/panel/questions` | Pending |
 | `/panel/assessments` | Pending |
 | `/panel/results` | Pending |
 | `/test/*` | Pending |
@@ -223,6 +226,8 @@ Reuse these cross-feature helpers before creating feature-specific equivalents:
 - `shared/components/table-skeleton.tsx` and `shared/components/entity-skeleton.tsx` → Suspense fallbacks.
 - `shared/components/row-actions.tsx` → row dropdown (view, edit, delete) with confirmation dialog.
 - `shared/components/pagination.tsx` and `shared/lib/pagination.ts` → pagination UI and helpers.
+- `shared/components/form-fields.tsx` → `TextField`, `TextareaField`, and `SelectField` React Hook Form bindings with `Field` layout and error display.
+- `shared/components/ui/select.tsx` → Base UI select primitives (`Select`, `SelectTrigger`, `SelectContent`, `SelectItem`, `SelectValue`).
 
 ### Navigation
 
@@ -240,6 +245,8 @@ Follow the established dimension feature pattern:
 4. Execute the requested operation.
 5. Return a typed `ActionResult<T>` using the existing result helpers.
 6. Revalidate all affected paths with `revalidatePath()`.
+
+Forms validate user input with React Hook Form and the feature's shared Zod schema, so actions that receive an already-validated form body must not re-validate it (`safeParse`). Keep validating identifiers and enforcing business rules (existence, uniqueness, related records) on the server.
 
 Use Spanish messages for user-facing success and error results.
 
