@@ -1,15 +1,25 @@
-export const instant = false;
-
 import Link from "next/link";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { ArrowLeftIcon } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { DimensionForm } from "@/features/dimension/components/dimension-form";
+import { DimensionFormSkeleton } from "@/features/dimension/components/dimension-form-skeleton";
 import { getDimensionById } from "@/features/dimension/queries/dimension.queries";
 
-const EditDimensionPage = async ({
-  params,
-}: PageProps<"/panel/dimension/[id]/edit">) => {
+type Props = PageProps<"/panel/dimension/[id]/edit">;
+
+const EditDimensionPage = ({ params }: Props) => {
+  return (
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
+      <Suspense fallback={<DimensionFormSkeleton />}>
+        <EditDimensionForm params={params} />
+      </Suspense>
+    </div>
+  );
+};
+
+const EditDimensionForm = async ({ params }: Pick<Props, "params">) => {
   const { id } = await params;
   const dimensionId = Number(id);
 
@@ -19,7 +29,7 @@ const EditDimensionPage = async ({
   if (!dimension) notFound();
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
+    <>
       <div className="flex items-center gap-2">
         <Button
           variant="ghost"
@@ -39,7 +49,7 @@ const EditDimensionPage = async ({
           description: dimension.description,
         }}
       />
-    </div>
+    </>
   );
 };
 

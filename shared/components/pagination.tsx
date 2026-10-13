@@ -1,32 +1,15 @@
 import Link from "next/link";
 import { Button } from "@/shared/components/ui/button";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
-
-const hrefFor = (page: number) =>
-  page <= 1 ? "/panel/dimension" : `/panel/dimension?page=${page}`;
-
-const getPageNumbers = (page: number, totalPages: number): (number | "…")[] => {
-  if (totalPages <= 7)
-    return Array.from({ length: totalPages }, (_, index) => index + 1);
-
-  const pages: (number | "…")[] = [1];
-  const start = Math.max(2, page - 1);
-  const end = Math.min(totalPages - 1, page + 1);
-
-  if (start > 2) pages.push("…");
-  for (let current = start; current <= end; current++) pages.push(current);
-  if (end < totalPages - 1) pages.push("…");
-  pages.push(totalPages);
-
-  return pages;
-};
+import { buildPageHref, getPageItems } from "@/shared/lib/pagination";
 
 type Props = {
   page: number;
   totalPages: number;
+  basePath: string;
 };
 
-export const DimensionPagination = ({ page, totalPages }: Props) => {
+export const Pagination = ({ page, totalPages, basePath }: Props) => {
   if (totalPages <= 1) return null;
 
   return (
@@ -37,18 +20,23 @@ export const DimensionPagination = ({ page, totalPages }: Props) => {
           size="icon-sm"
           nativeButton={false}
           aria-label="Página anterior"
-          render={<Link href={hrefFor(page - 1)} />}
+          render={<Link href={buildPageHref(basePath, page - 1)} />}
         >
           <ChevronLeftIcon />
         </Button>
       ) : (
-        <Button variant="outline" size="icon-sm" disabled aria-label="Página anterior">
+        <Button
+          variant="outline"
+          size="icon-sm"
+          disabled
+          aria-label="Página anterior"
+        >
           <ChevronLeftIcon />
         </Button>
       )}
 
-      {getPageNumbers(page, totalPages).map((item, index) =>
-        item === "…" ? (
+      {getPageItems(page, totalPages).map((item, index) =>
+        item === "ellipsis" ? (
           <span
             key={`ellipsis-${index}`}
             className="flex size-7 items-center justify-center text-sm text-muted-foreground"
@@ -65,7 +53,7 @@ export const DimensionPagination = ({ page, totalPages }: Props) => {
             variant="ghost"
             size="icon-sm"
             nativeButton={false}
-            render={<Link href={hrefFor(item)} />}
+            render={<Link href={buildPageHref(basePath, item)} />}
           >
             {item}
           </Button>
@@ -78,12 +66,17 @@ export const DimensionPagination = ({ page, totalPages }: Props) => {
           size="icon-sm"
           nativeButton={false}
           aria-label="Página siguiente"
-          render={<Link href={hrefFor(page + 1)} />}
+          render={<Link href={buildPageHref(basePath, page + 1)} />}
         >
           <ChevronRightIcon />
         </Button>
       ) : (
-        <Button variant="outline" size="icon-sm" disabled aria-label="Página siguiente">
+        <Button
+          variant="outline"
+          size="icon-sm"
+          disabled
+          aria-label="Página siguiente"
+        >
           <ChevronRightIcon />
         </Button>
       )}

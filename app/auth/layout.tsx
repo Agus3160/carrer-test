@@ -1,15 +1,19 @@
-import { getSession } from "@/shared/lib/session";
-import { redirect } from "next/navigation";
-import { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
+import { AuthRedirectIfSignedIn } from "@/features/auth/components/auth-redirect-if-signed-in";
 
 type Props = {
   children: ReactNode;
 };
 
-const AuthLayout = async ({ children }: Props) => {
-  const session = await getSession();
-  if (session !== null) return redirect("/panel");
-  return children;
+const AuthLayout = ({ children }: Props) => {
+  return (
+    <>
+      <Suspense fallback={null}>
+        <AuthRedirectIfSignedIn />
+      </Suspense>
+      {children}
+    </>
+  );
 };
 
 export default AuthLayout;

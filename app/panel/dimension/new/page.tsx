@@ -1,5 +1,3 @@
-export const instant = false;
-
 import Link from "next/link";
 import { ArrowLeftIcon } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";

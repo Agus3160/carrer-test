@@ -1,6 +1,5 @@
-export const instant = false;
-
 import Link from "next/link";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { ArrowLeftIcon, PencilIcon } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
@@ -14,15 +13,22 @@ import {
 } from "@/shared/components/ui/card";
 import { Separator } from "@/shared/components/ui/separator";
 import { getDimensionById } from "@/features/dimension/queries/dimension.queries";
+import { DimensionDetailSkeleton } from "@/features/dimension/components/dimension-detail-skeleton";
+import { formatDateTime } from "@/shared/lib/format";
 
-const dateFormatter = new Intl.DateTimeFormat("es", {
-  dateStyle: "medium",
-  timeStyle: "short",
-});
+type Props = PageProps<"/panel/dimension/[id]">;
 
-const DimensionDetailPage = async ({
-  params,
-}: PageProps<"/panel/dimension/[id]">) => {
+const DimensionDetailPage = ({ params }: Props) => {
+  return (
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
+      <Suspense fallback={<DimensionDetailSkeleton />}>
+        <DimensionDetail params={params} />
+      </Suspense>
+    </div>
+  );
+};
+
+const DimensionDetail = async ({ params }: Pick<Props, "params">) => {
   const { id } = await params;
   const dimensionId = Number(id);
 
@@ -32,7 +38,7 @@ const DimensionDetailPage = async ({
   if (!dimension) notFound();
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
+    <>
       <div className="flex items-center gap-2">
         <Button
           variant="ghost"
@@ -70,13 +76,13 @@ const DimensionDetailPage = async ({
             <div className="flex flex-col gap-1">
               <p className="text-sm font-medium">Creada</p>
               <p className="text-sm text-muted-foreground">
-                {dateFormatter.format(dimension.createdAt)}
+                {formatDateTime(dimension.createdAt)}
               </p>
             </div>
             <div className="flex flex-col gap-1">
               <p className="text-sm font-medium">Última actualización</p>
               <p className="text-sm text-muted-foreground">
-                {dateFormatter.format(dimension.updatedAt)}
+                {formatDateTime(dimension.updatedAt)}
               </p>
             </div>
           </div>
@@ -91,7 +97,7 @@ const DimensionDetailPage = async ({
           </Button>
         </CardFooter>
       </Card>
-    </div>
+    </>
   );
 };
 

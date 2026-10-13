@@ -1,6 +1,7 @@
 "server only";
 
 import { createHash, randomBytes } from "crypto";
+import { cache } from "react";
 import { env } from "./env";
 import { prisma } from "./prisma";
 import { cookies } from "next/headers";
@@ -55,7 +56,7 @@ export const isThereSession = async (req: NextRequest) => {
   return session !== null;
 };
 
-export const getSession = async () => {
+export const getSession = cache(async () => {
   const store = await cookies();
   const code = store.get(env.SESSION_COOKIE_NAME)?.value;
   if (!code) return null;
@@ -66,7 +67,7 @@ export const getSession = async () => {
     return null;
 
   return session;
-};
+});
 
 export const getSessionOrRedirect = async () => {
   const session = await getSession();

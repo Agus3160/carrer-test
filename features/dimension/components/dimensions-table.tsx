@@ -7,19 +7,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/shared/components/ui/table";
-import { Badge } from "@/shared/components/ui/badge";
 import { getDimensionsPage } from "../queries/dimension.queries";
-import { DimensionPagination } from "./dimension-pagination";
 import { DimensionRowActions } from "./dimension-row-actions";
+import { Pagination } from "@/shared/components/pagination";
+import { formatDateTime } from "@/shared/lib/format";
 
 type Props = {
   searchParams: PageProps<"/panel/dimension">["searchParams"];
 };
-
-const dateFormatter = new Intl.DateTimeFormat("es", {
-  dateStyle: "medium",
-  timeStyle: "short",
-});
 
 export const DimensionsTable = async ({ searchParams }: Props) => {
   const params = await searchParams;
@@ -42,32 +37,25 @@ export const DimensionsTable = async ({ searchParams }: Props) => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-16 text-center">ID</TableHead>
-              <TableHead>Nombre</TableHead>
+              <TableHead className="text-center w-32">Nombre</TableHead>
               <TableHead>Descripción</TableHead>
-              <TableHead className="hidden sm:table-cell">Actualizado</TableHead>
+              <TableHead className="hidden sm:table-cell">
+                Actualizado
+              </TableHead>
               <TableHead className="w-12" />
             </TableRow>
           </TableHeader>
           <TableBody>
             {items.map((dimension) => (
               <TableRow key={dimension.id}>
-                <TableCell className="text-center">
-                  <Badge variant="secondary">{dimension.id}</Badge>
-                </TableCell>
-                <TableCell className="font-medium">
-                  <Link
-                    href={`/panel/dimension/${dimension.id}`}
-                    className="hover:underline"
-                  >
-                    {dimension.name}
-                  </Link>
-                </TableCell>
+                <TableCell className="text-center">{dimension.name}</TableCell>
                 <TableCell className="max-w-xs truncate text-muted-foreground">
-                  <span title={dimension.description}>{dimension.description}</span>
+                  <span title={dimension.description}>
+                    {dimension.description}
+                  </span>
                 </TableCell>
                 <TableCell className="hidden text-muted-foreground sm:table-cell">
-                  {dateFormatter.format(dimension.updatedAt)}
+                  {formatDateTime(dimension.updatedAt)}
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end">
@@ -88,7 +76,11 @@ export const DimensionsTable = async ({ searchParams }: Props) => {
           {total} {total === 1 ? "dimensión" : "dimensiones"} · página {page} de{" "}
           {totalPages}
         </p>
-        <DimensionPagination page={page} totalPages={totalPages} />
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          basePath="/panel/dimension"
+        />
       </div>
     </div>
   );

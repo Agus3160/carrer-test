@@ -1,7 +1,5 @@
 import z from "zod";
 
-export const DIMENSION_PAGE_SIZE = 8;
-
 export const DimensionSchema = z.object({
   name: z
     .string("El nombre es requerido")

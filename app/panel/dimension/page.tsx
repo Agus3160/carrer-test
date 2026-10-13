@@ -1,5 +1,3 @@
-export const instant = false;
-
 import Link from "next/link";
 import { Suspense } from "react";
 import { PlusIcon } from "lucide-react";
