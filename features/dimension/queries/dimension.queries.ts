@@ -31,3 +31,11 @@ export const getDimensionById = async (id: number) => {
   await getSessionOrRedirect();
   return prisma.dimension.findFirst({ where: { id, deletedAt: null } });
 };
+
+export const getAllDimensions = async () => {
+  await getSessionOrRedirect();
+  return prisma.dimension.findMany({
+    where: { deletedAt: null },
+    orderBy: { name: "asc" },
+  });
+};

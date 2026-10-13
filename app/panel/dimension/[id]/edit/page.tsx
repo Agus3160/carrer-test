@@ -1,10 +1,8 @@
-import Link from "next/link";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import { ArrowLeftIcon } from "lucide-react";
-import { Button } from "@/shared/components/ui/button";
+import { BackLink } from "@/shared/components/back-link";
+import { EntitySkeleton } from "@/shared/components/entity-skeleton";
 import { DimensionForm } from "@/features/dimension/components/dimension-form";
-import { DimensionFormSkeleton } from "@/features/dimension/components/dimension-form-skeleton";
 import { getDimensionById } from "@/features/dimension/queries/dimension.queries";
 
 type Props = PageProps<"/panel/dimension/[id]/edit">;
@@ -12,7 +10,7 @@ type Props = PageProps<"/panel/dimension/[id]/edit">;
 const EditDimensionPage = ({ params }: Props) => {
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
-      <Suspense fallback={<DimensionFormSkeleton />}>
+      <Suspense fallback={<EntitySkeleton />}>
         <EditDimensionForm params={params} />
       </Suspense>
     </div>
@@ -31,15 +29,7 @@ const EditDimensionForm = async ({ params }: Pick<Props, "params">) => {
   return (
     <>
       <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          nativeButton={false}
-          aria-label="Volver"
-          render={<Link href={`/panel/dimension/${dimension.id}`} />}
-        >
-          <ArrowLeftIcon />
-        </Button>
+        <BackLink href="/panel/dimension" />
         <h1 className="text-2xl font-semibold">Editar dimensión</h1>
       </div>
       <DimensionForm

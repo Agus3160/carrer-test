@@ -6,28 +6,32 @@ import {
   TableHeader,
   TableRow,
 } from "@/shared/components/ui/table";
-import { getDimensionsPage } from "../queries/dimension.queries";
-import { DimensionRowActions } from "./dimension-row-actions";
+import { EmptyState } from "@/shared/components/empty-state";
 import { Pagination } from "@/shared/components/pagination";
+import { RowActions } from "@/shared/components/row-actions";
 import { formatDateTime } from "@/shared/lib/format";
+import { getDimensionsPage } from "../queries/dimension.queries";
+import { deleteDimension } from "../actions/dimension.actions";
 
 type Props = {
   searchParams: PageProps<"/panel/dimension">["searchParams"];
 };
 
 export const DimensionsTable = async ({ searchParams }: Props) => {
-  const params = await searchParams;
-  const rawPage = Array.isArray(params.page) ? params.page[0] : params.page;
-  const { items, total, page, totalPages } = await getDimensionsPage(rawPage);
+  const { page } = await searchParams;
+  const {
+    items,
+    total,
+    page: currentPage,
+    totalPages,
+  } = await getDimensionsPage(page);
 
   if (total === 0)
     return (
-      <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed p-10 text-center">
-        <p className="font-medium">Aún no hay dimensiones</p>
-        <p className="text-sm text-muted-foreground">
-          Crea tu primera dimensión para comenzar.
-        </p>
-      </div>
+      <EmptyState
+        title="Aún no hay dimensiones"
+        description="Crea tu primera dimensión para comenzar."
+      />
     );
 
   return (
@@ -36,7 +40,7 @@ export const DimensionsTable = async ({ searchParams }: Props) => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="text-center w-32">Nombre</TableHead>
+              <TableHead className="w-32">Nombre</TableHead>
               <TableHead>Descripción</TableHead>
               <TableHead className="hidden sm:table-cell">
                 Actualizado
@@ -47,7 +51,7 @@ export const DimensionsTable = async ({ searchParams }: Props) => {
           <TableBody>
             {items.map((dimension) => (
               <TableRow key={dimension.id}>
-                <TableCell className="text-center">{dimension.name}</TableCell>
+                <TableCell>{dimension.name}</TableCell>
                 <TableCell className="max-w-xs truncate text-muted-foreground">
                   <span title={dimension.description}>
                     {dimension.description}
@@ -58,9 +62,13 @@ export const DimensionsTable = async ({ searchParams }: Props) => {
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end">
-                    <DimensionRowActions
+                    <RowActions
                       id={dimension.id}
                       name={dimension.name}
+                      entityLabel="dimensión"
+                      detailHref={`/panel/dimension/${dimension.id}`}
+                      editHref={`/panel/dimension/${dimension.id}/edit`}
+                      onDelete={deleteDimension}
                     />
                   </div>
                 </TableCell>
@@ -72,11 +80,11 @@ export const DimensionsTable = async ({ searchParams }: Props) => {
 
       <div className="flex flex-wrap items-center justify-between gap-4">
         <p className="text-sm text-muted-foreground">
-          {total} {total === 1 ? "dimensión" : "dimensiones"} · página {page} de{" "}
-          {totalPages}
+          {total} {total === 1 ? "dimensión" : "dimensiones"} · página{" "}
+          {currentPage} de {totalPages}
         </p>
         <Pagination
-          page={page}
+          page={currentPage}
           totalPages={totalPages}
           basePath="/panel/dimension"
         />

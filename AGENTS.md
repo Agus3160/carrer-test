@@ -187,7 +187,10 @@ Here, \(w_{C,D}\) is the career's weight for dimension \(D\), and \(s_D\) is its
 | `/panel/dimension/new` | Implemented dimension creation |
 | `/panel/dimension/[id]` | Implemented dimension details |
 | `/panel/dimension/[id]/edit` | Implemented dimension editing |
-| `/panel/carrer` | Not implemented; referenced by navigation. Note the existing spelling. |
+| `/panel/carrer` | Implemented paginated career list. Note the existing spelling. |
+| `/panel/carrer/new` | Implemented career creation with per-dimension weights |
+| `/panel/carrer/[id]` | Implemented career details |
+| `/panel/carrer/[id]/edit` | Implemented career editing |
 | `/panel/candidates` | Pending |
 | `/panel/questions` | Pending |
 | `/panel/assessments` | Pending |
@@ -208,6 +211,24 @@ Inspect existing routes and navigation before adding or renaming routes.
 - Components: `PascalCase.tsx`.
 - Default to Server Components. Add `"use client"` only when necessary.
 - Reuse existing shared utilities and feature patterns rather than introducing new abstractions without a need.
+
+### Shared Building Blocks
+
+Reuse these cross-feature helpers before creating feature-specific equivalents:
+
+- `shared/lib/validation.ts` → `idSchema` for positive integer ID coercion.
+- `shared/components/page-header.tsx` → list page title, description, and action.
+- `shared/components/back-link.tsx` → back navigation button.
+- `shared/components/empty-state.tsx` → empty list/collection state.
+- `shared/components/table-skeleton.tsx` and `shared/components/entity-skeleton.tsx` → Suspense fallbacks.
+- `shared/components/row-actions.tsx` → row dropdown (view, edit, delete) with confirmation dialog.
+- `shared/components/pagination.tsx` and `shared/lib/pagination.ts` → pagination UI and helpers.
+
+### Navigation
+
+- Every feature detail/edit view must expose a back link using `BackLink`.
+- The back link of both the detail and the edit views must always return to the resource listing (for example `/panel/dimension`), never to another detail view.
+- After a successful create or update, redirect to the resource listing.
 
 ### Server Actions
 

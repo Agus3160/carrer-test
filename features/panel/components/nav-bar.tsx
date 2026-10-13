@@ -7,9 +7,7 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from "@/shared/components/ui/navigation-menu";
-import { Button } from "@/shared/components/ui/button";
-import { LogOut } from "lucide-react";
-import { signout } from "@/features/auth/actions/signout.action";
+import { SignoutButton } from "./signout-button";
 
 type Props = {
   children: ReactNode;
@@ -40,16 +38,7 @@ const NavBarLayout = ({ children }: Props) => {
           </NavigationMenuList>
         </NavigationMenu>
 
-        <form action={signout}>
-          <Button
-            type="submit"
-            size="icon"
-            variant="destructive"
-            className="hover:cursor-pointer"
-          >
-            <LogOut className="size-4" />
-          </Button>
-        </form>
+        <SignoutButton />
       </header>
       <main className="py-6 px-4">{children}</main>
     </div>

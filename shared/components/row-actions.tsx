@@ -21,21 +21,37 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
 import { toast } from "@/shared/components/ui/toast";
-import { EyeIcon, MoreHorizontalIcon, PencilIcon, Trash2Icon } from "lucide-react";
-import { deleteDimension } from "../actions/dimension.actions";
+import { ActionResult } from "@/shared/types/action-result";
+import {
+  EyeIcon,
+  MoreHorizontalIcon,
+  PencilIcon,
+  Trash2Icon,
+} from "lucide-react";
 
 type Props = {
   id: number;
   name: string;
+  entityLabel: string;
+  detailHref: string;
+  editHref: string;
+  onDelete: (id: number) => Promise<ActionResult<unknown>>;
 };
 
-export const DimensionRowActions = ({ id, name }: Props) => {
+export const RowActions = ({
+  id,
+  name,
+  entityLabel,
+  detailHref,
+  editHref,
+  onDelete,
+}: Props) => {
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const handleDelete = () => {
     startTransition(async () => {
-      const res = await deleteDimension(id);
+      const res = await onDelete(id);
       if (!res.success) {
         toast.add({ type: "error", description: res.message });
         return;
@@ -54,11 +70,11 @@ export const DimensionRowActions = ({ id, name }: Props) => {
           <MoreHorizontalIcon />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem render={<Link href={`/panel/dimension/${id}`} />}>
+          <DropdownMenuItem render={<Link href={detailHref} />}>
             <EyeIcon />
             Ver
           </DropdownMenuItem>
-          <DropdownMenuItem render={<Link href={`/panel/dimension/${id}/edit`} />}>
+          <DropdownMenuItem render={<Link href={editHref} />}>
             <PencilIcon />
             Editar
           </DropdownMenuItem>
@@ -73,7 +89,7 @@ export const DimensionRowActions = ({ id, name }: Props) => {
       <AlertDialog open={open} onOpenChange={setOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>¿Eliminar dimensión?</AlertDialogTitle>
+            <AlertDialogTitle>¿Eliminar {entityLabel}?</AlertDialogTitle>
             <AlertDialogDescription>
               Se eliminará «{name}». Esta acción no se puede deshacer.
             </AlertDialogDescription>

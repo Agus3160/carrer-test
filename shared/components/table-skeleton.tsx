@@ -1,8 +1,12 @@
 import { Skeleton } from "@/shared/components/ui/skeleton";
 
-export const DimensionsTableSkeleton = () => (
+type Props = {
+  rows?: number;
+};
+
+export const TableSkeleton = ({ rows = 5 }: Props) => (
   <div className="flex flex-col gap-2">
-    {Array.from({ length: 5 }).map((_, index) => (
+    {Array.from({ length: rows }).map((_, index) => (
       <Skeleton key={index} className="h-12 w-full" />
     ))}
   </div>

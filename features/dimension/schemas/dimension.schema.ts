@@ -1,4 +1,5 @@
 import z from "zod";
+import { idSchema } from "@/shared/lib/validation";
 
 export const DimensionSchema = z.object({
   name: z
@@ -13,4 +14,4 @@ export const DimensionSchema = z.object({
 
 export type DimensionBody = z.infer<typeof DimensionSchema>;
 
-export const DimensionIdSchema = z.coerce.number().int().positive();
+export const DimensionIdSchema = idSchema;
