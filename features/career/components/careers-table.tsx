@@ -39,7 +39,7 @@ export const CareersTable = async ({ searchParams }: Props) => {
               <TableHead>Nombre</TableHead>
               <TableHead>Descripción</TableHead>
               <TableHead className="hidden sm:table-cell">
-                Dimensiones
+                Conocimiento
               </TableHead>
               <TableHead className="hidden sm:table-cell">
                 Actualizado
@@ -57,7 +57,7 @@ export const CareersTable = async ({ searchParams }: Props) => {
                   </span>
                 </TableCell>
                 <TableCell className="hidden text-muted-foreground sm:table-cell">
-                  {career._count.careerDimensions}
+                  {career._count.knowledgeLinks} vínculos · {career._count.courses} asignaturas
                 </TableCell>
                 <TableCell className="hidden text-muted-foreground sm:table-cell">
                   {formatDateTime(career.updatedAt)}

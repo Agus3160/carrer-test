@@ -4,9 +4,9 @@ import { FormWizard } from "@/features/form/components/form-wizard";
 import { getActiveQuestions } from "@/features/form/queries/form.queries";
 
 export const metadata: Metadata = {
-  title: "Test de orientación vocacional | CheckCareer",
+  title: "Tu orientación vocacional | Brújula",
   description:
-    "Responde el test y descubre tu porcentaje de compatibilidad con cada carrera.",
+    "Comparte tus intereses y preferencias y descubre carreras que puedes explorar.",
 };
 
 export default function FormPage() {

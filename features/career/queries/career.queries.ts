@@ -1,4 +1,4 @@
-"server only";
+import "server-only";
 
 import { prisma } from "@/shared/lib/prisma";
 import { getPaginationMeta, resolvePagination } from "@/shared/lib/pagination";
@@ -7,7 +7,7 @@ import type { Career } from "@/generated/prisma/client";
 import { Paginated } from "@/shared/types/paginated";
 
 export type CareerListItem = Career & {
-  _count: { careerDimensions: number };
+  _count: { knowledgeLinks: number; courses: number };
 };
 
 export const getCareersPage = async (
@@ -24,7 +24,7 @@ export const getCareersPage = async (
       orderBy: { id: "desc" },
       skip,
       take,
-      include: { _count: { select: { careerDimensions: true } } },
+      include: { _count: { select: { knowledgeLinks: true, courses: true } } },
     }),
     prisma.career.count({ where }),
   ]);
@@ -36,12 +36,6 @@ export const getCareerById = async (id: number) => {
   await getSessionOrRedirect();
   return prisma.career.findFirst({
     where: { id, deletedAt: null },
-    include: {
-      careerDimensions: {
-        include: { dimension: true },
-        orderBy: { dimensionId: "asc" },
-      },
-    },
   });
 };
 

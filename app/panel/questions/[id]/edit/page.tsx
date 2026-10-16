@@ -40,6 +40,7 @@ const EditQuestionForm = async ({ params }: Pick<Props, "params">) => {
       <QuestionForm
         questionId={question.id}
         dimensions={dimensions}
+        isKnowledgeQuestion={question.seedKey !== null}
         defaultValues={{
           text: question.text,
           description: question.description ?? "",

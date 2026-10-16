@@ -4,7 +4,6 @@ import { BackLink } from "@/shared/components/back-link";
 import { EntitySkeleton } from "@/shared/components/entity-skeleton";
 import { CareerForm } from "@/features/career/components/career-form";
 import { getCareerById } from "@/features/career/queries/career.queries";
-import { getAllDimensions } from "@/features/dimension/queries/dimension.queries";
 
 type Props = PageProps<"/panel/carrer/[id]/edit">;
 
@@ -24,10 +23,7 @@ const EditCareerForm = async ({ params }: Pick<Props, "params">) => {
 
   if (!Number.isInteger(careerId) || careerId <= 0) notFound();
 
-  const [career, dimensions] = await Promise.all([
-    getCareerById(careerId),
-    getAllDimensions(),
-  ]);
+  const career = await getCareerById(careerId);
 
   if (!career) notFound();
 
@@ -39,14 +35,9 @@ const EditCareerForm = async ({ params }: Pick<Props, "params">) => {
       </div>
       <CareerForm
         careerId={career.id}
-        dimensions={dimensions}
         defaultValues={{
           name: career.name,
           description: career.description ?? "",
-          dimensions: career.careerDimensions.map((item) => ({
-            dimensionId: item.dimensionId,
-            weight: item.weight,
-          })),
         }}
       />
     </>

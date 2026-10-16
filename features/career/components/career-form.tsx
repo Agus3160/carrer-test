@@ -14,26 +14,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
-import { FieldError, FieldGroup } from "@/shared/components/ui/field";
-import { Input } from "@/shared/components/ui/input";
-import { Label } from "@/shared/components/ui/label";
-import { Separator } from "@/shared/components/ui/separator";
+import { FieldGroup } from "@/shared/components/ui/field";
 import { toast } from "@/shared/components/ui/toast";
 import { CareerBody, CareerSchema } from "../schemas/career.schema";
 import { createCareer, updateCareer } from "../actions/career.actions";
 
-type DimensionOption = {
-  id: number;
-  name: string;
-};
-
 type Props = {
   careerId?: number;
-  dimensions: DimensionOption[];
   defaultValues?: CareerBody;
 };
 
-export const CareerForm = ({ careerId, dimensions, defaultValues }: Props) => {
+export const CareerForm = ({ careerId, defaultValues }: Props) => {
   const router = useRouter();
   const isEditing = careerId !== undefined;
 
@@ -42,13 +33,6 @@ export const CareerForm = ({ careerId, dimensions, defaultValues }: Props) => {
     defaultValues: {
       name: defaultValues?.name ?? "",
       description: defaultValues?.description ?? "",
-      dimensions: dimensions.map((dimension) => ({
-        dimensionId: dimension.id,
-        weight:
-          defaultValues?.dimensions.find(
-            (item) => item.dimensionId === dimension.id,
-          )?.weight ?? 0,
-      })),
     },
   });
 
@@ -75,8 +59,8 @@ export const CareerForm = ({ careerId, dimensions, defaultValues }: Props) => {
         <CardTitle>{isEditing ? "Editar carrera" : "Nueva carrera"}</CardTitle>
         <CardDescription>
           {isEditing
-            ? "Actualiza la información y los pesos por dimensión."
-            : "Registra una nueva carrera y su peso por dimensión."}
+            ? "Actualiza el nombre y la descripción que se muestran en el catálogo."
+            : "Registra el nombre y la descripción. Para incluirla en el catálogo público y las recomendaciones, complétala en la base de conocimiento."}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -96,58 +80,12 @@ export const CareerForm = ({ careerId, dimensions, defaultValues }: Props) => {
               rows={4}
             />
 
-            <div className="flex flex-col gap-4 rounded-xl border p-4">
-              <div className="flex flex-col gap-1">
-                <p className="text-sm font-medium">Pesos por dimensión</p>
-                <p className="text-sm text-muted-foreground">
-                  Asigna un peso de 0 a 100 a cada dimensión. Usa 0 para
-                  excluirla del cálculo.
-                </p>
-              </div>
-              <Separator />
-              {dimensions.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  No hay dimensiones activas. Crea una dimensión primero.
-                </p>
-              ) : (
-                <div className="flex flex-col gap-4">
-                  {dimensions.map((dimension, index) => {
-                    const error =
-                      form.formState.errors.dimensions?.[index]?.weight
-                        ?.message;
-
-                    return (
-                      <div key={dimension.id} className="flex flex-col gap-1">
-                        <div className="flex items-center justify-between gap-3">
-                          <Label htmlFor={`weight-${dimension.id}`}>
-                            {dimension.name}
-                          </Label>
-                          <input
-                            type="hidden"
-                            {...form.register(
-                              `dimensions.${index}.dimensionId`,
-                              { valueAsNumber: true },
-                            )}
-                          />
-                          <Input
-                            id={`weight-${dimension.id}`}
-                            type="number"
-                            min={0}
-                            max={100}
-                            step={0.1}
-                            className="w-28"
-                            aria-invalid={Boolean(error)}
-                            {...form.register(`dimensions.${index}.weight`, {
-                              valueAsNumber: true,
-                            })}
-                          />
-                        </div>
-                        {error && <FieldError>{error}</FieldError>}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+            <div className="rounded-xl border border-primary/30 bg-primary/10 p-4 text-sm leading-6 text-foreground">
+              Una carrera solo se muestra en el catálogo público y en las recomendaciones cuando tiene asignaturas y relaciones de conocimiento asociadas. Adminístralas en la{" "}
+              <Link className="font-semibold underline underline-offset-4" href="/panel/knowledge">
+                base de conocimiento
+              </Link>
+              .
             </div>
           </FieldGroup>
         </form>

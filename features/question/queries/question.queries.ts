@@ -1,4 +1,4 @@
-"server only";
+import "server-only";
 
 import type { Question } from "@/generated/prisma/client";
 import { getPaginationMeta, resolvePagination } from "@/shared/lib/pagination";

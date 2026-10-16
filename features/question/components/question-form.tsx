@@ -45,6 +45,7 @@ type Props = {
   questionId?: number;
   dimensions: DimensionOption[];
   defaultValues?: QuestionBody;
+  isKnowledgeQuestion?: boolean;
 };
 
 const buildDefaultValues = (
@@ -66,6 +67,7 @@ export const QuestionForm = ({
   questionId,
   dimensions,
   defaultValues,
+  isKnowledgeQuestion = false,
 }: Props) => {
   const router = useRouter();
   const isEditing = questionId !== undefined;
@@ -119,8 +121,10 @@ export const QuestionForm = ({
         </CardTitle>
         <CardDescription>
           {isEditing
-            ? "Actualiza el enunciado, la dimensión y las opciones."
-            : "Registra una nueva pregunta para las evaluaciones."}
+            ? isKnowledgeQuestion
+              ? "Actualiza el enunciado. Las respuestas y sus conceptos están vinculados al recomendador."
+              : "Actualiza el enunciado, la dimensión y las opciones."
+            : "Las preguntas personalizadas se guardan para referencia administrativa. Para incluir una pregunta en el cuestionario y en las recomendaciones, debe vincularse con conceptos del catálogo de conocimiento."}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -177,6 +181,7 @@ export const QuestionForm = ({
                     <SelectTrigger
                       id={field.name}
                       aria-invalid={fieldState.invalid}
+                    disabled={isKnowledgeQuestion}
                     >
                       <SelectValue placeholder="Seleccione una dimensión" />
                     </SelectTrigger>
@@ -215,6 +220,7 @@ export const QuestionForm = ({
                     <SelectTrigger
                       id={field.name}
                       aria-invalid={fieldState.invalid}
+                      disabled={isKnowledgeQuestion}
                     >
                       <SelectValue placeholder="Seleccione un tipo" />
                     </SelectTrigger>
@@ -238,13 +244,18 @@ export const QuestionForm = ({
                 No hay dimensiones activas. Crea una dimensión primero.
               </p>
             )}
-            {showOptions && (
+            {showOptions && isKnowledgeQuestion && (
+              <div className="rounded-xl border border-primary/30 bg-primary/10 p-4 text-sm leading-6 text-foreground">
+                Esta pregunta forma parte del cuestionario base. Para conservar el vínculo entre cada respuesta y la base de conocimiento, aquí solo se puede cambiar el enunciado o su descripción.
+              </div>
+            )}
+            {showOptions && !isKnowledgeQuestion && (
               <div className="flex flex-col gap-4 rounded-xl border p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex flex-col gap-1">
                     <p className="text-sm font-medium">Opciones</p>
                     <p className="text-sm text-muted-foreground">
-                      Agrega al menos 2 opciones y su valor de puntaje.
+                      Agrega al menos 2 opciones y su valor de respuesta.
                     </p>
                   </div>
                   <Button
@@ -266,7 +277,7 @@ export const QuestionForm = ({
                         control={form.control}
                         render={({ field: input, fieldState }) => (
                           <Field data-invalid={fieldState.invalid}>
-                            <Input
+                      <Input
                               placeholder={`Opción ${index + 1}`}
                               value={input.value}
                               onChange={input.onChange}
@@ -290,7 +301,7 @@ export const QuestionForm = ({
                           <Field>
                             <Input
                               type="number"
-                              min={0}
+                              min={-1}
                               max={1000}
                               step={0.1}
                               placeholder="Valor"

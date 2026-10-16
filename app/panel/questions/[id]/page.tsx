@@ -27,8 +27,8 @@ import { formatDateTime } from "@/shared/lib/format";
 import { getQuestionById } from "@/features/question/queries/question.queries";
 import {
   isChoiceQuestionType,
-  QUESTION_TYPE_LABELS,
-} from "@/features/question/schemas/question.schema";
+  QuestionTypesLabels,
+} from "@/features/question/lib/form.utils";
 
 type Props = PageProps<"/panel/questions/[id]">;
 
@@ -66,6 +66,11 @@ const QuestionDetail = async ({ params }: Pick<Props, "params">) => {
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
+          <div className="rounded-xl border border-primary/30 bg-primary/10 p-4 text-sm leading-6 text-foreground">
+            {question.seedKey
+              ? "Esta pregunta está incluida en el cuestionario y sus opciones están vinculadas al recomendador."
+              : "Esta pregunta es administrativa y no se muestra en el cuestionario ni afecta las recomendaciones porque aún no está vinculada a conceptos."}
+          </div>
           <div className="flex flex-col gap-1">
             <p className="text-sm font-medium">Enunciado</p>
             <p className="text-sm text-muted-foreground">{question.text}</p>
@@ -89,7 +94,7 @@ const QuestionDetail = async ({ params }: Pick<Props, "params">) => {
               <p className="text-sm font-medium">Tipo</p>
               <div>
                 <Badge variant="secondary">
-                  {QUESTION_TYPE_LABELS[question.type]}
+                  {QuestionTypesLabels[question.type]}
                 </Badge>
               </div>
             </div>

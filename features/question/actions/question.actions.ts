@@ -6,7 +6,11 @@ import { result } from "@/shared/lib/result";
 import { getSession } from "@/shared/lib/session";
 import { ActionResult } from "@/shared/types/action-result";
 import { revalidatePath } from "next/cache";
-import { QuestionBody, QuestionIdSchema } from "../schemas/question.schema";
+import {
+  QuestionBody,
+  QuestionIdSchema,
+  QuestionSchema,
+} from "../schemas/question.schema";
 
 const LIST_PATH = "/panel/questions";
 
@@ -33,7 +37,11 @@ export const createQuestion = async (
   const session = await getSession();
   if (!session) return result.fail("No autorizado");
 
-  const data = normalize(body);
+  const parsedBody = QuestionSchema.safeParse(body);
+  if (!parsedBody.success)
+    return result.fail("Datos de pregunta inválidos", parsedBody.error.issues.map((issue) => issue.message));
+
+  const data = normalize(parsedBody.data);
 
   if (!(await dimensionExists(data.dimensionId)))
     return result.fail("La dimensión seleccionada no existe");
@@ -79,25 +87,33 @@ export const updateQuestion = async (
   });
   if (!existing) return result.fail("La pregunta no existe");
 
-  const data = normalize(body);
+  const parsedBody = QuestionSchema.safeParse(body);
+  if (!parsedBody.success)
+    return result.fail("Datos de pregunta inválidos", parsedBody.error.issues.map((issue) => issue.message));
 
-  if (!(await dimensionExists(data.dimensionId)))
+  const data = normalize(parsedBody.data);
+
+  if (!existing.seedKey && !(await dimensionExists(data.dimensionId)))
     return result.fail("La dimensión seleccionada no existe");
 
   const question = await prisma.$transaction(async (tx) => {
     const updated = await tx.question.update({
       where: { id: parsedId.data },
-      data: {
-        text: data.text,
-        description: data.description,
-        dimensionId: data.dimensionId,
-        type: data.type,
-      },
+      data: existing.seedKey
+        ? { text: data.text, description: data.description }
+        : {
+            text: data.text,
+            description: data.description,
+            dimensionId: data.dimensionId,
+            type: data.type,
+          },
     });
 
-    await tx.questionOption.deleteMany({ where: { questionId: parsedId.data } });
+    if (!existing.seedKey) {
+      await tx.questionOption.deleteMany({ where: { questionId: parsedId.data } });
+    }
 
-    if (data.options.length > 0)
+    if (!existing.seedKey && data.options.length > 0)
       await tx.questionOption.createMany({
         data: data.options.map((option) => ({
           questionId: parsedId.data,
@@ -111,6 +127,7 @@ export const updateQuestion = async (
 
   revalidatePath(LIST_PATH);
   revalidatePath(detailPath(parsedId.data));
+  revalidatePath("/form");
   return result.ok(question, "Pregunta actualizada correctamente");
 };
 
@@ -134,5 +151,6 @@ export const deleteQuestion = async (
   });
 
   revalidatePath(LIST_PATH);
+  revalidatePath("/form");
   return result.success("Pregunta eliminada correctamente");
 };

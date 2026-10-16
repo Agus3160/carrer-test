@@ -2,7 +2,6 @@ import { Suspense } from "react";
 import { BackLink } from "@/shared/components/back-link";
 import { EntitySkeleton } from "@/shared/components/entity-skeleton";
 import { CareerForm } from "@/features/career/components/career-form";
-import { getAllDimensions } from "@/features/dimension/queries/dimension.queries";
 
 const NewCareerPage = () => {
   return (
@@ -18,10 +17,6 @@ const NewCareerPage = () => {
   );
 };
 
-const NewCareerForm = async () => {
-  const dimensions = await getAllDimensions();
-
-  return <CareerForm dimensions={dimensions} />;
-};
+const NewCareerForm = () => <CareerForm />;
 
 export default NewCareerPage;

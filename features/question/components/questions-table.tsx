@@ -44,6 +44,7 @@ export const QuestionsTable = async ({ searchParams }: Props) => {
             <TableRow>
               <TableHead>Enunciado</TableHead>
               <TableHead>Dimensión</TableHead>
+              <TableHead className="hidden md:table-cell">Uso</TableHead>
               <TableHead className="hidden sm:table-cell">Tipo</TableHead>
               <TableHead className="hidden sm:table-cell text-right">
                 Opciones
@@ -62,6 +63,11 @@ export const QuestionsTable = async ({ searchParams }: Props) => {
                 </TableCell>
                 <TableCell className="text-muted-foreground">
                   {question.dimension.name}
+                </TableCell>
+                <TableCell className="hidden md:table-cell">
+                  <Badge variant={question.seedKey ? "default" : "outline"}>
+                    {question.seedKey ? "En orientación" : "Sin vincular"}
+                  </Badge>
                 </TableCell>
                 <TableCell className="hidden sm:table-cell">
                   <Badge variant="secondary">

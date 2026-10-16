@@ -1,4 +1,4 @@
-import type { QuestionType } from "@/generated/prisma/enums";
+import type { QuestionKind, QuestionType } from "@/generated/prisma/enums";
 
 export type FormPhase = 0 | 1 | 3 | 4;
 
@@ -6,6 +6,7 @@ export type FormOption = {
   id: number;
   text: string;
   value: number;
+  conceptCodes: string[];
 };
 
 export type FormQuestion = {
@@ -13,6 +14,7 @@ export type FormQuestion = {
   text: string;
   description: string | null;
   type: QuestionType;
+  kind: QuestionKind;
   dimension: { id: number; name: string };
   options: FormOption[];
 };
@@ -23,11 +25,7 @@ export type FormDimensionGroup = {
   questions: FormQuestion[];
 };
 
-export type CandidateInfo = {
-  name: string;
-  ci: string;
-  email: string;
-};
+export type CandidateInfo = { name: string };
 
 export type AnswerValue =
   | { type: "SINGLE_CHOICE"; optionId: number | null }
@@ -37,32 +35,38 @@ export type AnswerValue =
 
 export type AnswersMap = Record<number, AnswerValue>;
 
-export type ExistingResult = {
-  careerName: string;
-  score: number;
+export type RecommendationEvidence = {
+  conceptCode: string;
+  label: string;
+  kind: QuestionKind;
+  response: string;
+  relation: "coincide" | "explorar";
+  rationale: string;
+  courseNames: string[];
+  sourceName: string | null;
+  sourceUrl: string | null;
 };
 
-export type ExistingCandidate = {
-  id: string;
-  name: string | null;
-  ci: string;
-  email: string;
-  lastAssessmentAt: Date | null;
-  results: ExistingResult[];
+export type RecommendationSource = {
+  name: string;
+  url: string;
+  version: string | null;
 };
 
 export type CareerResult = {
   careerId: number;
   careerName: string;
-  score: number;
   description: string | null;
-};
-
-export type CareerWithWeights = {
-  id: number;
-  name: string;
-  description: string | null;
-  careerDimensions: { dimensionId: number; weight: number }[];
+  rank: number;
+  jevProbability: number;
+  coverage: number;
+  coverageLabel: "Amplia" | "Moderada" | "Inicial";
+  summary: string;
+  evidence: RecommendationEvidence[];
+  opportunities: string[];
+  courses: string[];
+  sources: RecommendationSource[];
+  matchedConceptCodes: string[];
 };
 
 export type AnswerPayload = {
@@ -70,4 +74,28 @@ export type AnswerPayload = {
   optionIds: number[];
   value: number | null;
   text: string | null;
+};
+
+export type CareerKnowledgeProfile = {
+  id: number;
+  name: string;
+  description: string | null;
+  knowledgeLinks: {
+    relevance: number;
+    rationale: string;
+    sourceName: string | null;
+    sourceUrl: string | null;
+    concept: {
+      code: string;
+      label: string;
+      type: string;
+    };
+  }[];
+  courses: {
+    name: string;
+    conceptCodes: string[];
+    sourceName: string;
+    sourceUrl: string;
+    sourceVersion: string;
+  }[];
 };

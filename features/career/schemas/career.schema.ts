@@ -1,14 +1,6 @@
 import z from "zod";
 import { idSchema } from "@/shared/lib/validation";
 
-export const CareerDimensionInputSchema = z.object({
-  dimensionId: idSchema,
-  weight: z.coerce
-    .number("El peso es requerido")
-    .min(0, "El peso no puede ser negativo")
-    .max(100, "El peso no puede superar 100"),
-});
-
 export const CareerSchema = z.object({
   name: z
     .string("El nombre es requerido")
@@ -18,7 +10,6 @@ export const CareerSchema = z.object({
     .string()
     .max(500, "La descripción no puede superar los 500 caracteres")
     .optional(),
-  dimensions: z.array(CareerDimensionInputSchema).default([]),
 });
 
 export type CareerBody = z.infer<typeof CareerSchema>;

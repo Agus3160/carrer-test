@@ -14,14 +14,15 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CheckCareer",
-  description: "Test de orientación vocacional por dimensiones.",
+  title: "Brújula — Orientación vocacional",
+  description: "Explora carreras que conectan con tus intereses y preferencias, con razones y fuentes claras.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="es"
+      data-scroll-behavior="smooth"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">

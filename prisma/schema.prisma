@@ -30,8 +30,8 @@ model Session {
 model Candidate {
   id    String  @id @default(uuid())
   name  String?
-  ci    String  @unique
-  email String  @unique
+  ci    String? @unique
+  email String? @unique
 
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
@@ -57,15 +57,18 @@ model Career {
   name        String  @unique
   description String?
 
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
   deletedAt        DateTime?
   careerDimensions CareerDimension[]
   results          Result[]
+  courses          CareerCourse[]
+  knowledgeLinks   CareerKnowledgeLink[]
 }
 
 model Question {
   id          Int     @id @default(autoincrement())
+  seedKey     String? @unique
   text        String
   description String?
 
@@ -73,6 +76,7 @@ model Question {
   dimension   Dimension @relation(fields: [dimensionId], references: [id])
 
   type    QuestionType     @default(SINGLE_CHOICE)
+  kind    QuestionKind     @default(INTEREST)
   options QuestionOption[]
 
   createdAt DateTime  @default(now())
@@ -82,9 +86,11 @@ model Question {
 }
 
 model QuestionOption {
-  id    Int    @id @default(autoincrement())
-  text  String
-  value Float
+  id           Int      @id @default(autoincrement())
+  code         String?  @unique
+  text         String
+  value        Float
+  conceptCodes String[] @default([])
 
   questionId Int
   question   Question @relation(fields: [questionId], references: [id])
@@ -141,7 +147,9 @@ model Assessment {
   answers Answer[]
   results Result[]
 
-  completedAt DateTime?
+  completedAt           DateTime?
+  questionnaireVersion  String    @default("vocacional-v1")
+  recommendationVersion String    @default("jev-choice-v1")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -156,10 +164,94 @@ model Result {
   careerId Int
   career   Career @relation(fields: [careerId], references: [id])
 
-  score       Float
-  description String?
+  // score remains nullable only to preserve historical prototype records.
+  score                 Float?
+  jevProbability        Float?
+  rank                  Int?
+  coverage              Float?
+  matchedConceptCodes   String[] @default([])
+  evidence              Json?
+  gaps                  String[] @default([])
+  recommendationVersion String   @default("jev-choice-v1")
+  description           String?
 
   createdAt DateTime @default(now())
 
   @@unique([assessmentId, careerId])
+}
+
+model KnowledgeConcept {
+  id            Int                   @id @default(autoincrement())
+  code          String                @unique
+  label         String
+  type          KnowledgeConceptType
+  description   String?
+  sourceName    String?
+  sourceUrl     String?
+  sourceVersion String?
+  status        KnowledgeReviewStatus @default(PRELIMINARY)
+  links         CareerKnowledgeLink[]
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+
+  @@index([type, status])
+}
+
+model CareerKnowledgeLink {
+  id            Int                   @id @default(autoincrement())
+  careerId      Int
+  conceptId     Int
+  relevance     Float                 @default(1)
+  rationale     String
+  sourceName    String?
+  sourceUrl     String?
+  sourceVersion String?
+  status        KnowledgeReviewStatus @default(PRELIMINARY)
+  career        Career                @relation(fields: [careerId], references: [id], onDelete: Cascade)
+  concept       KnowledgeConcept      @relation(fields: [conceptId], references: [id], onDelete: Cascade)
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+
+  @@unique([careerId, conceptId])
+  @@index([careerId, status])
+}
+
+model CareerCourse {
+  id            Int      @id @default(autoincrement())
+  careerId      Int
+  name          String
+  semester      Int?
+  code          String?
+  conceptCodes  String[] @default([])
+  sourceName    String
+  sourceUrl     String
+  sourceVersion String
+  career        Career   @relation(fields: [careerId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([careerId, name])
+  @@index([careerId, semester])
+}
+
+enum QuestionKind {
+  INTEREST
+  SUBJECT
+  STRENGTH
+  WORK_STYLE
+}
+
+enum KnowledgeConceptType {
+  SUBJECT
+  INTEREST
+  SKILL
+  WORK_ACTIVITY
+  WORK_STYLE
+  WORK_CONTEXT
+  WORK_FIELD
+}
+
+enum KnowledgeReviewStatus {
+  PRELIMINARY
+  REVIEWED
 }

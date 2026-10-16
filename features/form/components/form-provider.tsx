@@ -13,19 +13,16 @@ import type {
   AnswersMap,
   CandidateInfo,
   CareerResult,
-  ExistingCandidate,
   FormPhase,
 } from "../lib/types";
 
-const emptyCandidate: CandidateInfo = { name: "", ci: "", email: "" };
+const emptyCandidate: CandidateInfo = { name: "" };
 
 type FormContextValue = {
   phase: FormPhase;
   goToPhase: (phase: FormPhase) => void;
   candidate: CandidateInfo;
   setCandidate: (candidate: CandidateInfo) => void;
-  existingCandidate: ExistingCandidate | null;
-  setExistingCandidate: (candidate: ExistingCandidate | null) => void;
   answers: AnswersMap;
   setAnswer: (questionId: number, value: AnswerValue) => void;
   results: CareerResult[];
@@ -39,8 +36,6 @@ const FormContext = createContext<FormContextValue | null>(null);
 export const FormProvider = ({ children }: { children: ReactNode }) => {
   const [phase, setPhase] = useState<FormPhase>(0);
   const [candidate, setCandidate] = useState<CandidateInfo>(emptyCandidate);
-  const [existingCandidate, setExistingCandidate] =
-    useState<ExistingCandidate | null>(null);
   const [answers, setAnswers] = useState<AnswersMap>({});
   const [results, setResults] = useState<CareerResult[]>([]);
 
@@ -53,15 +48,12 @@ export const FormProvider = ({ children }: { children: ReactNode }) => {
   const reset = useCallback(() => {
     setPhase(0);
     setCandidate(emptyCandidate);
-    setExistingCandidate(null);
     setAnswers({});
     setResults([]);
   }, []);
 
   const hasProgress = useMemo(
     () =>
-      candidate.ci.trim().length > 0 ||
-      candidate.email.trim().length > 0 ||
       candidate.name.trim().length > 0 ||
       Object.keys(answers).length > 0,
     [candidate, answers],
@@ -73,8 +65,6 @@ export const FormProvider = ({ children }: { children: ReactNode }) => {
       goToPhase,
       candidate,
       setCandidate,
-      existingCandidate,
-      setExistingCandidate,
       answers,
       setAnswer,
       results,
@@ -86,7 +76,6 @@ export const FormProvider = ({ children }: { children: ReactNode }) => {
       phase,
       goToPhase,
       candidate,
-      existingCandidate,
       answers,
       setAnswer,
       results,

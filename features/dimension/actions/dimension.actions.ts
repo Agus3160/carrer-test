@@ -9,6 +9,7 @@ import { revalidatePath } from "next/cache";
 import {
   DimensionBody,
   DimensionIdSchema,
+  DimensionSchema,
 } from "../schemas/dimension.schema";
 
 const LIST_PATH = "/panel/dimension";
@@ -21,7 +22,11 @@ export const createDimension = async (
   const session = await getSession();
   if (!session) return result.fail("No autorizado");
 
-  const dimension = await prisma.dimension.create({ data: body });
+  const parsedBody = DimensionSchema.safeParse(body);
+  if (!parsedBody.success)
+    return result.fail("Datos de dimensión inválidos", parsedBody.error.issues.map((issue) => issue.message));
+
+  const dimension = await prisma.dimension.create({ data: parsedBody.data });
 
   revalidatePath(LIST_PATH);
   return result.ok(dimension, "Dimensión creada correctamente");
@@ -42,9 +47,13 @@ export const updateDimension = async (
   });
   if (!existing) return result.fail("La dimensión no existe");
 
+  const parsedBody = DimensionSchema.safeParse(body);
+  if (!parsedBody.success)
+    return result.fail("Datos de dimensión inválidos", parsedBody.error.issues.map((issue) => issue.message));
+
   const dimension = await prisma.dimension.update({
     where: { id: parsedId.data },
-    data: body,
+    data: parsedBody.data,
   });
 
   revalidatePath(LIST_PATH);

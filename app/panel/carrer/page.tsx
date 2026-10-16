@@ -11,7 +11,7 @@ const CareerPage = ({ searchParams }: PageProps<"/panel/carrer">) => {
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
       <PageHeader
         title="Carreras"
-        description="Administra las carreras y su peso por dimensión."
+        description="Administra los nombres y descripciones. Revisa las materias y sus relaciones desde la base de conocimiento."
         action={
           <Button
             size="icon"

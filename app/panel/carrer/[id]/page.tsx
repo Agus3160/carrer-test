@@ -11,14 +11,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/shared/components/ui/table";
 import { Separator } from "@/shared/components/ui/separator";
 import { BackLink } from "@/shared/components/back-link";
 import { EntitySkeleton } from "@/shared/components/entity-skeleton";
@@ -73,34 +65,12 @@ const CareerDetail = async ({ params }: Pick<Props, "params">) => {
             </p>
           </div>
           <Separator />
-          <div className="flex flex-col gap-2">
-            <p className="text-sm font-medium">Pesos por dimensión</p>
-            {career.careerDimensions.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No se asignaron dimensiones a esta carrera.
-              </p>
-            ) : (
-              <div className="overflow-hidden rounded-xl ring-1 ring-foreground/10">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Dimensión</TableHead>
-                      <TableHead className="w-24 text-right">Peso</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {career.careerDimensions.map((item) => (
-                      <TableRow key={item.id}>
-                        <TableCell>{item.dimension.name}</TableCell>
-                        <TableCell className="text-right text-muted-foreground">
-                          {item.weight}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
+          <div className="rounded-xl border border-primary/30 bg-primary/10 p-4 text-sm leading-6 text-foreground">
+            Las asignaturas, fuentes y relaciones que alimentan las recomendaciones se administran en la{" "}
+            <Link className="font-semibold underline underline-offset-4" href="/panel/knowledge">
+              base de conocimiento
+            </Link>
+            .
           </div>
           <Separator />
           <div className="grid gap-4 sm:grid-cols-2">

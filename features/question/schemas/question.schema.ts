@@ -14,7 +14,7 @@ export const QuestionOptionSchema = z.object({
     .max(300, "El texto de la opción no puede superar los 300 caracteres"),
   value: z
     .number("El valor es requerido")
-    .min(0, "El valor no puede ser negativo")
+    .min(-1, "El valor no puede ser menor a -1")
     .max(1000, "El valor no puede superar 1000"),
 });
 

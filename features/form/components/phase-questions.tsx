@@ -48,7 +48,7 @@ export const PhaseQuestions = ({ questions }: Props) => {
         <CardHeader>
           <CardTitle>Sin preguntas disponibles</CardTitle>
           <CardDescription>
-            Todavía no se han configurado preguntas para el test.
+            Todavía no se han configurado preguntas para el cuestionario.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -70,7 +70,7 @@ export const PhaseQuestions = ({ questions }: Props) => {
       setShowErrors(true);
       toast.add({
         type: "error",
-        description: "Responde todas las preguntas de esta sección para continuar",
+        description: "Elige una opción en cada pregunta. También puedes marcar que aún no lo sabes.",
       });
       return;
     }
@@ -101,7 +101,7 @@ export const PhaseQuestions = ({ questions }: Props) => {
           </span>
           <span className="text-muted-foreground">
             Sección {dimensionIndex + 1} de {groups.length} · {totalAnswered}/
-            {questions.length} respondidas
+            {questions.length} elegidas
           </span>
         </div>
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
@@ -121,9 +121,8 @@ export const PhaseQuestions = ({ questions }: Props) => {
               <div className="flex items-start justify-between gap-3">
                 <CardTitle className="text-base leading-snug">
                   {question.text}
-                  <span className="ml-1 text-destructive">*</span>
                 </CardTitle>
-                <Badge variant="outline">{group.name}</Badge>
+                <Badge variant="outline">{question.kind === "STRENGTH" ? "Fortaleza" : question.kind === "WORK_STYLE" ? "Preferencia" : question.kind === "SUBJECT" ? "Materia" : "Interés"}</Badge>
               </div>
               {question.description && (
                 <CardDescription>{question.description}</CardDescription>
@@ -137,7 +136,7 @@ export const PhaseQuestions = ({ questions }: Props) => {
               />
               {missing && (
                 <p className="text-sm text-destructive">
-                  Esta pregunta es obligatoria
+                  Elige una opción o marca que aún no lo sabes
                 </p>
               )}
             </CardContent>
